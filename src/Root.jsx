@@ -1,3 +1,5 @@
+import "./index.css";
+
 function App() {
   /* app will have two things
     1. The side navigation bar
@@ -5,10 +7,10 @@ function App() {
   */
   return (
     <>
-      <div id="navigation_sidebar" className="text-3xl font-bold underline">
-        <h1>This is the app page</h1>
+      <div id="sidebar">
+        <h1>navigation side-bar</h1>
       </div>
-      <div id="content_outlet">
+      <div id="detail">
         <h2>This is content outlet</h2>
       </div>
     </>
