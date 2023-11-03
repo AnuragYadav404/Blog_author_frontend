@@ -6,7 +6,7 @@ const initialState = {
   fetch_status: "idle", // "idle", "completed", "pending", "rejected"
   error: null,
   user_id: null,
-  username: "",
+  username: "Anonymous user",
 };
 
 export const userSlice = createSlice({
@@ -22,6 +22,15 @@ export const userSlice = createSlice({
     },
     updateUserError: (state, action) => {
       state.error = action.payload;
+    },
+    userLogout: () => {
+      return {
+        is_logged_in: false,
+        fetch_status: "idle", // "idle", "completed", "pending", "rejected"
+        error: null,
+        user_id: null,
+        username: "Anonymous user",
+      };
     },
   },
   extraReducers: (builder) => {
@@ -71,7 +80,8 @@ export const fetch_login_status = createAsyncThunk(
   }
 );
 
-export const { updateLoginStatus, updateUserError } = userSlice.actions;
+export const { updateLoginStatus, updateUserError, userLogout } =
+  userSlice.actions;
 
 export const selectUserStatus = (state) => state.user;
 export default userSlice.reducer;

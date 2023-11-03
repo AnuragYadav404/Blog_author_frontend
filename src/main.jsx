@@ -8,6 +8,7 @@ import { Provider } from "react-redux";
 import store from "./app/store.js";
 import HomePage from "./components/HomePage.jsx";
 import LoginPage from "./components/LoginPage.jsx";
+import LogoutPage from "./components/LogoutPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -23,7 +24,7 @@ const router = createBrowserRouter([
         path: "accounts",
         children: [
           { path: "login", element: <LoginPage /> },
-          { path: "logout", element: <h2>Logout Page</h2> },
+          { path: "logout", element: <LogoutPage /> },
           { path: "signup", element: <h2>Sign-up Page</h2> },
         ],
         errorElement: <ErrorPage />,
