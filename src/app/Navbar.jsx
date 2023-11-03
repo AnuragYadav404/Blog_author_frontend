@@ -14,8 +14,8 @@ export default function Navbar() {
         </button> */}
         {userStatus.is_logged_in && <Link to="/articles/all">My Articles</Link>}
         {userStatus.is_logged_in && <Link to="/articles/new">New Article</Link>}
-        <Link to="/accounts/login">Login</Link>
-        <Link to="/accounts/signup">Sign-up</Link>
+        {!userStatus.is_logged_in && <Link to="/accounts/login">Login</Link>}
+        {!userStatus.is_logged_in && <Link to="/accounts/signup">Sign-up</Link>}
         {userStatus.is_logged_in && <Link to="/accounts/logout">Logout</Link>}
       </nav>
     </div>

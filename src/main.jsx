@@ -7,6 +7,7 @@ import ErrorPage from "./components/ErrorPage.jsx";
 import { Provider } from "react-redux";
 import store from "./app/store.js";
 import HomePage from "./components/HomePage.jsx";
+import LoginPage from "./components/LoginPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -21,7 +22,7 @@ const router = createBrowserRouter([
       {
         path: "accounts",
         children: [
-          { path: "login", element: <h2>Login Page</h2> },
+          { path: "login", element: <LoginPage /> },
           { path: "logout", element: <h2>Logout Page</h2> },
           { path: "signup", element: <h2>Sign-up Page</h2> },
         ],
