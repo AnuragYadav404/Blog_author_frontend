@@ -9,6 +9,9 @@ import store from "./app/store.js";
 import HomePage from "./components/HomePage.jsx";
 import LoginPage from "./components/LoginPage.jsx";
 import LogoutPage from "./components/LogoutPage.jsx";
+import UserArticlesList from "./components/UserArticlesList.jsx";
+import CreateArticle from "./components/CreateArticle.jsx";
+import PostPage from "./components/PostPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -34,18 +37,28 @@ const router = createBrowserRouter([
         children: [
           {
             path: "all",
-            element: <h2>List of all the articles by the user</h2>,
+            element: <UserArticlesList />,
+            errorElement: <ErrorPage />,
           },
           {
             path: "new",
-            element: <h2>New Article route</h2>,
+            element: <CreateArticle />,
+          },
+          {
+            path: ":post_id",
+            element: <PostPage />,
           },
         ],
       },
     ],
   },
 ]);
-
+/********
+ * 
+ new article
+ view article
+ edit article
+ */
 // append redux provider here at root
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
