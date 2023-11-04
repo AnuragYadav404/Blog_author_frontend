@@ -1,10 +1,19 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-const initialState = {
-  posts: [],
+import { createEntityAdapter } from "@reduxjs/toolkit";
+
+const postsAdapter = createEntityAdapter();
+
+const initialState = postsAdapter.getInitialState({
   status: "idle",
   error: null,
-};
+});
+
+// const initialState = {
+//   posts: [],
+//   status: "idle",
+//   error: null,
+// };
 
 export const postsSlice = createSlice({
   name: "posts",
@@ -32,7 +41,10 @@ export const postsSlice = createSlice({
         //   state.user_id = fetchData.user.user_id;
         //   state.username = fetchData.user.username;
         // }
-        state.posts = fetchData.articles;
+        // modify the below with adapter equivalent
+        // state.posts = fetchData.articles;
+        console.log("Fetched data before upsertMany is: ", fetchData);
+        postsAdapter.upsertMany(state, fetchData.articles);
         console.log("Fetching user login status completed");
         console.log("Fetched data: ", fetchData);
       })
@@ -47,21 +59,37 @@ export const postsSlice = createSlice({
         const fetchData = action.payload;
         if (fetchData.statusCode === 200) {
           console.log("publish successfull, updating state");
-
-          state.posts.forEach((post) => {
-            if (post.id == fetchData.article_id) {
-              console.log(action.payload);
-              console.log("SUAAAAAAAAr");
-              post.isPublished = fetchData.isPublished;
-            }
-          });
+          state.entities[fetchData.article_id].isPublished =
+            fetchData.isPublished;
+          // state.posts.forEach((post) => {
+          //   if (post.id == fetchData.article_id) {
+          //     console.log(action.payload);
+          //     console.log("SUAAAAAAAAr");
+          //     post.isPublished = fetchData.isPublished;
+          //   }
+          // });
         }
       })
       .addCase(create_post.fulfilled, (state, action) => {
         // conditional check for updating the post state
         const fetchData = action.payload;
         if (fetchData.statusCode === 200) {
-          state.posts.push(fetchData.article);
+          postsAdapter.addOne(state, fetchData.article);
+          // state.posts.push(fetchData.article);
+        }
+      })
+      .addCase(update_post.fulfilled, (state, action) => {
+        // conditional check for updating the post state
+        const fetchData = action.payload;
+        if (fetchData.statusCode === 200) {
+          state.entities[fetchData.article.id].content =
+            fetchData.article.content;
+          state.entities[fetchData.article.id].title = fetchData.article.title;
+          // const postItem = state.posts.find(
+          //   (item) => item.id == fetchData.article.id
+          // );
+          // postItem.content = fetchData.article.content;
+          // postItem.title = fetchData.article.title;
         }
       });
   },
@@ -135,10 +163,38 @@ export const create_post = createAsyncThunk(
   }
 );
 
+export const update_post = createAsyncThunk(
+  "posts/update_post",
+  async (postData) => {
+    const response = await axios({
+      method: "PUT",
+      url: `http://localhost:3000/articles/${postData.id}`,
+      withCredentials: true,
+      data: {
+        title: postData.title, // here both these fields
+        content: postData.content, // need to be validated
+      },
+      headers: {
+        "Content-Type": "application/json", // Adjust content type as needed
+      },
+    });
+    // three scenarios for the above request to fail
+    // 1. network error -> server ain't up/ no internet connect?
+    // 2. bad request
+    // 3. user not logged in,due to session expired
+    const data = response.data;
+    console.log(data);
+    return data;
+  }
+);
+
 export const { dumbSomething } = postsSlice.actions;
 
 export default postsSlice.reducer;
 
-export const select_post_by_id = (state, candidate_post_id) => {
-  return state.posts.posts.find((post) => post.id == candidate_post_id);
-};
+// export const select_post_by_id = (state, candidate_post_id) => {
+//   return state.posts.posts.find((post) => post.id == candidate_post_id);
+// };
+
+export const { selectAll: select_all_posts, selectById: select_post_by_id } =
+  postsAdapter.getSelectors((state) => state.posts);

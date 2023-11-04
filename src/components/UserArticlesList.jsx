@@ -1,23 +1,27 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUserStatus } from "../features/user/userSlice";
-import { fetch_posts, publish_post } from "../features/posts/postsSlice";
+import {
+  select_all_posts,
+  fetch_posts,
+  publish_post,
+} from "../features/posts/postsSlice";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+// import {} from "../features/posts/postsSlice";
 
 export default function UserArticlesList() {
   const dispatch = useDispatch();
   const user_status = useSelector(selectUserStatus);
-  const posts_state = useSelector((state) => state.posts);
+  const posts_state_status = useSelector((state) => state.posts.status);
+  const posts_state = useSelector(select_all_posts);
   // here we can modify to use normalization
 
-  console.log(posts_state);
-
   useEffect(() => {
-    if (posts_state.status === "idle" && user_status.is_logged_in) {
+    if (posts_state_status === "idle" && user_status.is_logged_in) {
       dispatch(fetch_posts(user_status.user_id));
     }
-  }, [posts_state.status, user_status.is_logged_in]);
+  }, [posts_state_status, user_status.is_logged_in]);
 
   // if the user ain't logged in
   if (!user_status.is_logged_in) {
@@ -31,7 +35,7 @@ export default function UserArticlesList() {
   // fetch the user blogs, and display!
   // userid is available in user_status
 
-  const rendered_posts = posts_state.posts.map((post) => {
+  const rendered_posts = posts_state.map((post) => {
     return <PostExcerpt post={post} key={post.id} />;
   });
 

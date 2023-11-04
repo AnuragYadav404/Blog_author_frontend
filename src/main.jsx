@@ -12,6 +12,8 @@ import LogoutPage from "./components/LogoutPage.jsx";
 import UserArticlesList from "./components/UserArticlesList.jsx";
 import CreateArticle from "./components/CreateArticle.jsx";
 import PostPage from "./components/PostPage.jsx";
+import EditPost from "./components/EditPost.jsx";
+import SignUpPage from "./components/SignUpPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -28,7 +30,7 @@ const router = createBrowserRouter([
         children: [
           { path: "login", element: <LoginPage /> },
           { path: "logout", element: <LogoutPage /> },
-          { path: "signup", element: <h2>Sign-up Page</h2> },
+          { path: "signup", element: <SignUpPage /> },
         ],
         errorElement: <ErrorPage />,
       },
@@ -44,9 +46,14 @@ const router = createBrowserRouter([
             path: "new",
             element: <CreateArticle />,
           },
+
           {
             path: ":post_id",
             element: <PostPage />,
+          },
+          {
+            path: ":post_id/edit",
+            element: <EditPost />,
           },
         ],
       },

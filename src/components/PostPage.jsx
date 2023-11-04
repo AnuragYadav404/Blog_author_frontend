@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { select_post_by_id } from "../features/posts/postsSlice";
 import { useSelector } from "react-redux";
 
@@ -12,6 +12,9 @@ export default function PostPage() {
         <h2>{post_item.title}</h2>
         <h3>{post_item.author.username}</h3>
         <p>{post_item.content}</p>
+        <Link to={`/articles/${post_id}/edit`}>
+          <button>Edit</button>
+        </Link>
       </>
     );
   } else {

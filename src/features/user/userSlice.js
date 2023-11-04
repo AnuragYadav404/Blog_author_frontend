@@ -80,6 +80,33 @@ export const fetch_login_status = createAsyncThunk(
   }
 );
 
+export const signup_user = createAsyncThunk(
+  "user/signup_user",
+  async (userInfo) => {
+    // fetch the response
+    const response = await axios({
+      method: "POST",
+      url: `http://localhost:3000/users/signup`,
+      withCredentials: true,
+      data: {
+        username: userInfo.username, // here both these fields
+        password: userInfo.password, // need to be validated
+        description: userInfo.description,
+        name: userInfo.name,
+      },
+      headers: {
+        "Content-Type": "application/json", // Adjust content type as needed
+      },
+    });
+    // three scenarios for the above request to fail
+    // 1. network error -> server ain't up/ no internet connect?
+    // 2. the user is not logged in
+    // 3. the user is logged in!
+    const data = response.data;
+    return data; // this return populates the payload of action
+  }
+);
+
 export const { updateLoginStatus, updateUserError, userLogout } =
   userSlice.actions;
 
