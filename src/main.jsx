@@ -26,36 +26,38 @@ const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
-        path: "accounts",
-        children: [
-          { path: "login", element: <LoginPage /> },
-          { path: "logout", element: <LogoutPage /> },
-          { path: "signup", element: <SignUpPage /> },
-        ],
+        path: "accounts/login",
+        element: <LoginPage />,
+      },
+      {
+        path: "accounts/logout",
+        element: <LogoutPage />,
         errorElement: <ErrorPage />,
       },
       {
-        path: "articles",
-        children: [
-          {
-            path: "all",
-            element: <UserArticlesList />,
-            errorElement: <ErrorPage />,
-          },
-          {
-            path: "new",
-            element: <CreateArticle />,
-          },
-
-          {
-            path: ":post_id",
-            element: <PostPage />,
-          },
-          {
-            path: ":post_id/edit",
-            element: <EditPost />,
-          },
-        ],
+        path: "accounts/signup",
+        element: <SignUpPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "articles/all",
+        element: <UserArticlesList />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "articles/new",
+        element: <CreateArticle />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "articles/:post_id",
+        element: <PostPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "articles/:post_id/edit",
+        element: <EditPost />,
+        errorElement: <ErrorPage />,
       },
     ],
   },
@@ -68,9 +70,7 @@ const router = createBrowserRouter([
  */
 // append redux provider here at root
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <RouterProvider router={router}></RouterProvider>
-    </Provider>
-  </React.StrictMode>
+  <Provider store={store}>
+    <RouterProvider router={router}></RouterProvider>
+  </Provider>
 );

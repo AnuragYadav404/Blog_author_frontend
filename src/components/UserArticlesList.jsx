@@ -9,19 +9,131 @@ import {
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 // import {} from "../features/posts/postsSlice";
-
+import {
+  useGetPostsQuery,
+  useModifyPublishPostMutation,
+  selectAllArticles,
+  apiSlice,
+  postsRTKAdapter,
+} from "../features/api/apiSlice";
+import { createSelector } from "@reduxjs/toolkit";
+import { useMemo } from "react";
 export default function UserArticlesList() {
-  const dispatch = useDispatch();
   const user_status = useSelector(selectUserStatus);
-  const posts_state_status = useSelector((state) => state.posts.status);
-  const posts_state = useSelector(select_all_posts);
+  // const posts_state_status = useSelector((state) => state.posts.status);
+  // const [posts_state, setPostState] = useState([]);
   // here we can modify to use normalization
 
+  /******************8
+   * 
+   * const dispatch = useDispatch();
+  const user_status = useSelector(selectUserStatus);
+  // const posts_state_status = useSelector((state) => state.posts.status);
+  // const [posts_state, setPostState] = useState([]);
+  // here we can modify to use normalization
+
+  //
+  console.log(user_status.user_id);
+
+  // const {
+  //   data: posts,
+  //   isLoading,
+  //   isSuccess,
+  //   isError,
+  //   error,
+  // } = useGetPostsQuery(user_status.user_id);
+
+  const [posts, setPosts] = useState([]);
+
   useEffect(() => {
-    if (posts_state_status === "idle" && user_status.is_logged_in) {
-      dispatch(fetch_posts(user_status.user_id));
-    }
-  }, [posts_state_status, user_status.is_logged_in]);
+    console.log("asshole");
+    dispatch(apiSlice.endpoints.getPosts.initiate(user_status.user_id))
+      .unwrap()
+      .then((result) => {
+        console.log("fuck is: ", result);
+        if (result) {
+          setPosts(result);
+        }
+      });
+  }, []);
+
+  //
+  console.log("posts is", posts);
+
+  let rendered_posts = [];
+
+  console.log("state is: ", posts.articles);
+  rendered_posts = posts.map((post) => {
+    return <PostExcerpt post={post} key={post.id} />;
+  });
+   * 
+   * 
+   */
+  //
+  console.log(user_status.user_id);
+
+  const {
+    data: posts,
+    isLoading,
+    isSuccess,
+    isError,
+    error,
+  } = useGetPostsQuery(user_status.user_id);
+  /************** */
+  const selectDataForPikachu = apiSlice.endpoints.getPosts.select(
+    user_status.user_id
+  );
+
+  const pikachuData = useSelector(selectDataForPikachu);
+  console.log("pikachu data is", pikachuData.data);
+
+  // const selectAllArticlesPosts = useMemo(
+  //   (state) => {
+  //     const selectAllArticlesPostsCacheEntry = selectDataForPikachu;
+  //     console.log("siiu");
+  //     const { selectAll } = postsRTKAdapter.getSelectors();
+  //     console.log("sewwy");
+  //     return createSelector(
+  //       (state) => {
+  //         const someResult = selectAllArticlesPostsCacheEntry(state);
+  //         console.log("ome results is", someResult);
+  //         return someResult;
+  //       },
+  //       (cacheData) => {
+  //         console.log("some bullshit cachdata is", cacheData);
+  //         const initialState = [];
+  //         const answerResult = selectAll(cacheData) ?? initialState;
+  //         console.log("answer result is", answerResult);
+  //         return answerResult;
+  //       }
+  //     );
+  //   },
+  //   [user_status.user_id]
+  // );
+  // const gigAnswer = useSelector(selectAllArticlesPosts);
+  // console.log("gigAnswer is", gigAnswer);
+  // const allArticlesFetch = useSelector((state) => {
+  //   console.log("selecting");
+  //   return selectAllArticles(state);
+  // });
+  // console.log("all articles is:", allArticlesFetch);
+  /***** */
+  console.log("posts is", posts);
+
+  let rendered_posts = [];
+
+  // if (isSuccess) {
+  //   console.log("state is: ", posts);
+  //   rendered_posts = posts.map((post) => {
+  //     return <PostExcerpt post={post} key={post.id} />;
+  //   });
+  // }
+
+  // useEffect(() => {
+  //   if (posts_state_status === "idle" && user_status.is_logged_in) {
+  //     dispatch(fetch_posts(user_status.user_id));
+  //   }
+  // }, [posts_state_status, user_status.is_logged_in]);
 
   // if the user ain't logged in
   if (!user_status.is_logged_in) {
@@ -34,10 +146,6 @@ export default function UserArticlesList() {
   // if the user is logged in
   // fetch the user blogs, and display!
   // userid is available in user_status
-
-  const rendered_posts = posts_state.map((post) => {
-    return <PostExcerpt post={post} key={post.id} />;
-  });
 
   return (
     <>
@@ -52,15 +160,18 @@ let PostExcerpt = ({ post }) => {
   const dispatch = useDispatch();
   const [publishing, setPublishing] = useState(false);
   const [error, setError] = useState(null);
-
+  const [publishPost, { isFetching }] = useModifyPublishPostMutation();
+  const user_status = useSelector(selectUserStatus);
   async function handlePublish() {
     // try catch logic needs to be implemented here to update publishing state
     if (!publishing) {
       try {
         setPublishing(true);
-        await dispatch(
-          publish_post({ post_id: post.id, action: "publish" })
-        ).unwrap();
+        await publishPost({
+          post_id: post.id,
+          action: "publish",
+          user_id: user_status.user_id,
+        });
       } catch (err) {
         setError(err);
       } finally {
@@ -73,15 +184,22 @@ let PostExcerpt = ({ post }) => {
     if (!publishing) {
       try {
         setPublishing(true);
-        const publishResults = await dispatch(
-          publish_post({ post_id: post.id, action: "unpublish" })
-        ).unwrap();
+        console.log("user status state is: ", user_status);
+        await publishPost({
+          post_id: post.id,
+          action: "unpublish",
+          user_id: user_status.user_id,
+        });
       } catch (err) {
         setError(err);
       } finally {
         setPublishing(false);
       }
     }
+  }
+
+  if (!user_status.is_logged_in) {
+    return <i>You must be logged in to view articles</i>;
   }
 
   return (

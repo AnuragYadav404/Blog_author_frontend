@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { createEntityAdapter } from "@reduxjs/toolkit";
+import { apiSlice } from "../api/apiSlice";
+import { createSelector } from "@reduxjs/toolkit";
 
 const postsAdapter = createEntityAdapter();
 
@@ -198,3 +200,25 @@ export default postsSlice.reducer;
 
 export const { selectAll: select_all_posts, selectById: select_post_by_id } =
   postsAdapter.getSelectors((state) => state.posts);
+
+// Calling `someEndpoint.select(someArg)` generates a new selector that will return
+// the query result object for a query with those parameters.
+// To generate a selector for a specific query argument, call `select(theQueryArg)`.
+// In this case, the users query has no params, so we don't pass anything to select()
+export const selectPostsResult = apiSlice.endpoints.getPosts.select();
+
+const emptyPosts = [];
+
+export const selectAllPosts = createSelector(
+  selectPostsResult,
+  (postsResult) => {
+    console.log(postsResult);
+    return postsResult?.data ?? emptyPosts;
+  }
+);
+
+// export const selectUserById = createSelector(
+//   selectAllUsers,
+//   (state, userId) => userId,
+//   (users, userId) => users.find((user) => user.id === userId)
+// );

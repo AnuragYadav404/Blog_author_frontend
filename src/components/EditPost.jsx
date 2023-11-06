@@ -1,9 +1,10 @@
 import { useDispatch, useSelector } from "react-redux";
 import { selectUserStatus } from "../features/user/userSlice";
-import { useState } from "react";
-import { update_post } from "../features/posts/postsSlice";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { select_post_by_id } from "../features/posts/postsSlice";
+import { useGetPostsQuery } from "../features/api/apiSlice";
+import { useUpdatePostMutation } from "../features/api/apiSlice";
 
 export default function EditPost() {
   const user_status = useSelector(selectUserStatus);
@@ -11,12 +12,46 @@ export default function EditPost() {
   const navigate = useNavigate();
   // get the post item
   const { post_id } = useParams();
-  const post_item = useSelector((state) => select_post_by_id(state, post_id));
+  // const post_item = useSelector((state) => select_post_by_id(state, post_id));
 
-  const [title, setTitle] = useState(post_item.title);
-  const [content, setContent] = useState(post_item.content);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const selectPostFromAllPosts = (result, post_id) => {
+    console.log("data for select single is: ", result);
+    console.log("post id for select single is: ", post_id);
+    const emptyarray = [];
+    const returnResult =
+      result.data?.find((post) => post.id === post_id) ?? undefined;
+    console.log("return result is", returnResult);
+    return returnResult;
+  };
+
+  const {
+    selectedPost: post,
+    isFetching,
+    isUninitialized,
+    status: getPostQueryStatus,
+  } = useGetPostsQuery(user_status.user_id, {
+    selectFromResult: (result) => {
+      return {
+        ...result,
+        selectedPost: selectPostFromAllPosts(result, post_id),
+      };
+    },
+  });
+
+  const [update_post, { isFetchingUpdatePost }] = useUpdatePostMutation();
+
+  useEffect(() => {
+    if (getPostQueryStatus === "fulfilled" && post) {
+      console.log("Hey buddy the post is: ", post);
+      setTitle(post.title);
+      setContent(post.content);
+    }
+  }, [getPostQueryStatus]);
 
   if (!user_status.is_logged_in) {
     return (
@@ -26,18 +61,32 @@ export default function EditPost() {
     );
   }
 
+  if (isUninitialized) {
+    return (
+      <>
+        <i>Beep boop fetching blog info</i>
+      </>
+    );
+  }
+
+  if (!post) {
+    return (
+      <>
+        <i>Hey bud, this post does not exist!</i>
+      </>
+    );
+  }
+
   async function handleUpdateArticle(e) {
     e.preventDefault();
     if (!loading) {
       try {
         setLoading(true);
-        const update_post_result = await dispatch(
-          update_post({
-            title,
-            content,
-            id: post_id,
-          })
-        ).unwrap();
+        await update_post({
+          title,
+          content,
+          post_id: post_id,
+        });
         // console.log(create_post_result);
         navigate(`/articles/${post_id}`);
       } catch (err) {
@@ -53,7 +102,7 @@ export default function EditPost() {
       <h3>{`What's on your mind?`}</h3>
       {error && <i>{error.message}</i>}
       <form onSubmit={handleUpdateArticle}>
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading || isFetchingUpdatePost}>
           Update
         </button>
         <label htmlFor="title">Title</label>
@@ -78,7 +127,7 @@ export default function EditPost() {
           minLength={1}
           maxLength={5000}
           value={content}
-          disabled={loading}
+          disabled={loading || isFetchingUpdatePost}
           onChange={(e) => setContent(e.target.value)}
         ></textarea>
       </form>

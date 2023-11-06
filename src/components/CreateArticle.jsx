@@ -3,6 +3,7 @@ import { selectUserStatus } from "../features/user/userSlice";
 import { useState } from "react";
 import { create_post } from "../features/posts/postsSlice";
 import { useNavigate } from "react-router-dom";
+import { useCreatePostMutation } from "../features/api/apiSlice";
 
 export default function CreateArticle() {
   const user_status = useSelector(selectUserStatus);
@@ -12,6 +13,7 @@ export default function CreateArticle() {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [addNewPost, { isLoading }] = useCreatePostMutation();
 
   if (!user_status.is_logged_in) {
     return (
@@ -26,12 +28,10 @@ export default function CreateArticle() {
     if (!loading) {
       try {
         setLoading(true);
-        const create_post_result = await dispatch(
-          create_post({
-            title,
-            content,
-          })
-        ).unwrap();
+        const create_post_result = await addNewPost({
+          title,
+          content,
+        }).unwrap();
         console.log(create_post_result);
         navigate(`/articles/${create_post_result.id}`);
       } catch (err) {
