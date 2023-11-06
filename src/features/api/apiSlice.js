@@ -31,11 +31,20 @@ export const apiSlice = createApi({
         // },
         transformResponse: (responseData) => {
           console.log("data set all for rtk is", responseData);
-          const result = postsRTKAdapter.upsertMany(
+          const data = responseData.articles;
+          console.log("data is", data);
+          const normalizedData = { ids: [], entities: {} };
+          data.forEach((post) => {
+            normalizedData.entities[post.id] = post;
+            normalizedData.ids.push(post.id);
+          });
+          console.log("modified data is", normalizedData);
+          const result = postsRTKAdapter.setAll(
             initialState,
             responseData.articles
           );
           console.log("rtk result return is", result);
+          console.log("data and adapter is equal", result == normalizedData);
           return result;
         },
       }),
