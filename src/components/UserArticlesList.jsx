@@ -72,13 +72,8 @@ export default function UserArticlesList() {
   //
   console.log(user_status.user_id);
 
-  const {
-    data: posts,
-    isLoading,
-    isSuccess,
-    isError,
-    error,
-  } = useGetPostsQuery(user_status.user_id);
+  const objQUeryHOok = useGetPostsQuery(user_status.user_id);
+  console.log("data from useQuery hooks is posts:", objQUeryHOok);
   /************** */
   const selectDataForPikachu = apiSlice.endpoints.getPosts.select(
     user_status.user_id
@@ -118,9 +113,9 @@ export default function UserArticlesList() {
   // });
   // console.log("all articles is:", allArticlesFetch);
   /***** */
-  console.log("posts is", posts);
+  // console.log("posts is", posts);
 
-  let rendered_posts = [];
+  // let rendered_posts = [];
 
   // if (isSuccess) {
   //   console.log("state is: ", posts);
@@ -150,7 +145,7 @@ export default function UserArticlesList() {
   return (
     <>
       <h2>Lame ass users blogs!</h2>
-      <>{rendered_posts}</>
+      {/* <>{rendered_posts}</> */}
     </>
   );
 }
